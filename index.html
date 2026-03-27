@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solar System VR</title>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { overflow:hidden; background:#000; font-family:'Orbitron',monospace; }
+  </style>
+</head>
+<body>
+
+<a-scene
+  id="scene"
+  loading-screen="enabled:false; dotscolor:#000; backgroundColor:#000"
+  vr-mode-ui="enabled:true"
+  renderer="antialias:true; logarithmicDepthBuffer:true; sortObjects:true;"
+  
+>
+<a-assets timeout="120000">
+  <img id="tex-stars"   src="texture/2k_stars_milky_way.jpg"/>
+  <img id="tex-sun"     src="texture/2k_sun.jpg"/>
+  <img id="tex-mercury" src="texture/2k_mercury.jpg"/>
+  <img id="tex-venus"   src="texture/2k_venus_atmosphere.jpg"/>
+  <img id="tex-earth"   src="texture/2k_earth_daymap.jpg"/>
+  <img id="tex-moon"    src="texture/2k_moon.jpg"/>
+  <img id="tex-mars"    src="texture/2k_mars.jpg"/>
+  <img id="tex-jupiter" src="texture/2k_jupiter.jpg"/>
+  <img id="tex-saturn"  src="texture/2k_saturn.jpg"/>
+  <img id="tex-ring"    src="texture/2k_saturn_ring_alpha.png"/>
+  <img id="tex-uranus"  src="texture/2k_uranus.jpg"/>
+  <img id="tex-neptune" src="texture/2k_neptune.jpg"/>
+</a-assets>
+
+  <a-sky src="#tex-stars" rotation="0 -90 0" radius="9000"></a-sky>
+
+  <a-light type="ambient"  color="#0a1528" intensity="0.5"></a-light>
+  <a-light type="point" position="0 0 0" color="#fff8e0"
+           intensity="3.0" distance="6000" decay="1.2"></a-light>
+
+  <!-- Orbit lines injected by JS using THREE.LineLoop -->
+  <a-entity id="orbit-lines"></a-entity>
+
+  <!-- SUN -->
+  <a-sphere id="sun" radius="3.8" position="0 0 0"
+    material="src:#tex-sun; shader:flat; emissive:#ff6600; emissiveIntensity:1.5;"
+    class="clickable"
+    data-name="THE SUN"
+    data-line1="Type: G-type Main Sequence Star"
+    data-line2="Radius: 696,340 km"
+    data-line3="Surface Temp: 5,500 degree C"
+    data-line4="Age: 4.6 Billion Years">
+  </a-sphere>
+  <a-sphere radius="4.6"  material="color:#ff8800;opacity:0.10;transparent:true;shader:flat;side:back;" position="0 0 0"></a-sphere>
+  <a-sphere radius="6.5"  material="color:#ff5500;opacity:0.05;transparent:true;shader:flat;side:back;" position="0 0 0"></a-sphere>
+  <a-sphere radius="9.0"  material="color:#ff2200;opacity:0.02;transparent:true;shader:flat;side:back;" position="0 0 0"></a-sphere>
+
+  <!-- MERCURY -->
+  <a-entity id="piv-mercury">
+    <a-entity id="grp-mercury" position="8 0 0">
+      <a-sphere id="pl-mercury" radius="0.40"
+        material="src:#tex-mercury;"
+        class="clickable"
+        data-name="MERCURY"
+        data-line1="1st Planet from the Sun"
+        data-line2="Orbital Period: 88 Earth Days"
+        data-line3="Radius: 2,440 km"
+        data-line4="Smallest planet, no atmosphere">
+      </a-sphere>
+      <a-text id="lbl-mercury" value="MERCURY" align="center"
+        color="#d0e8ff" width="5" position="0 0.9 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- VENUS -->
+  <a-entity id="piv-venus">
+    <a-entity id="grp-venus" position="13 0 0">
+      <a-sphere id="pl-venus" radius="0.94"
+        material="src:#tex-venus;"
+        class="clickable"
+        data-name="VENUS"
+        data-line1="2nd Planet from the Sun"
+        data-line2="Orbital Period: 225 Earth Days"
+        data-line3="Radius: 6,052 km"
+        data-line4="Hottest planet, avg 462 degree C">
+      </a-sphere>
+      <a-text id="lbl-venus" value="VENUS" align="center"
+        color="#d0e8ff" width="5" position="0 1.4 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- EARTH + MOON -->
+  <a-entity id="piv-earth">
+    <a-entity id="grp-earth" position="19 0 0">
+      <a-sphere id="pl-earth" radius="1.00"
+        material="src:#tex-earth;"
+        class="clickable"
+        data-name="EARTH"
+        data-line1="3rd Planet from the Sun"
+        data-line2="Orbital Period: 365 Earth Days"
+        data-line3="Radius: 6,371 km"
+        data-line4="Only known planet harbouring life">
+      </a-sphere>
+      <a-text id="lbl-earth" value="EARTH" align="center"
+        color="#d0e8ff" width="5" position="0 1.5 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+      <a-entity id="piv-moon">
+        <a-entity id="grp-moon" position="2.4 0 0">
+          <a-sphere id="pl-moon" radius="0.28"
+            material="src:#tex-moon;"
+            class="clickable"
+            data-name="THE MOON"
+            data-line1="Earth's Natural Satellite"
+            data-line2="Orbital Period: 27.3 Days"
+            data-line3="Radius: 1,737 km"
+            data-line4="Tidally locked to Earth">
+          </a-sphere>
+          <a-text id="lbl-moon" value="MOON" align="center"
+            color="#b0c8e8" width="3.5" position="0 0.65 0"
+            font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+            shader="msdf" negate="false">
+          </a-text>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+  </a-entity>
+
+  <!-- MARS -->
+  <a-entity id="piv-mars">
+    <a-entity id="grp-mars" position="26 0 0">
+      <a-sphere id="pl-mars" radius="0.55"
+        material="src:#tex-mars;"
+        class="clickable"
+        data-name="MARS"
+        data-line1="4th Planet from the Sun"
+        data-line2="Orbital Period: 687 Earth Days"
+        data-line3="Radius: 3,390 km"
+        data-line4="The Red Planet, hosts Olympus Mons">
+      </a-sphere>
+      <a-text id="lbl-mars" value="MARS" align="center"
+        color="#d0e8ff" width="5" position="0 1.1 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- JUPITER -->
+  <a-entity id="piv-jupiter">
+    <a-entity id="grp-jupiter" position="38 0 0">
+      <a-sphere id="pl-jupiter" radius="2.55"
+        material="src:#tex-jupiter;"
+        class="clickable"
+        data-name="JUPITER"
+        data-line1="5th Planet from the Sun"
+        data-line2="Orbital Period: 11.9 Earth Years"
+        data-line3="Radius: 71,492 km"
+        data-line4="Largest planet, Great Red Spot storm">
+      </a-sphere>
+      <a-text id="lbl-jupiter" value="JUPITER" align="center"
+        color="#d0e8ff" width="7" position="0 3.2 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- SATURN + RINGS -->
+  <a-entity id="piv-saturn">
+    <a-entity id="grp-saturn" position="52 0 0">
+      <a-sphere id="pl-saturn" radius="2.15"
+        material="src:#tex-saturn;"
+        class="clickable"
+        data-name="SATURN"
+        data-line1="6th Planet from the Sun"
+        data-line2="Orbital Period: 29.5 Earth Years"
+        data-line3="Radius: 60,268 km"
+        data-line4="Iconic ring system, least dense planet">
+      </a-sphere>
+      <a-circle radius="5.5"
+        material="src:#tex-ring; transparent:true; opacity:0.92; side:double; shader:flat;"
+        rotation="75 0 0" segments="128">
+      </a-circle>
+      <a-text id="lbl-saturn" value="SATURN" align="center"
+        color="#d0e8ff" width="7" position="0 3.0 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- URANUS -->
+  <a-entity id="piv-uranus">
+    <a-entity id="grp-uranus" position="67 0 0">
+      <a-sphere id="pl-uranus" radius="1.65"
+        material="src:#tex-uranus;"
+        class="clickable"
+        data-name="URANUS"
+        data-line1="7th Planet from the Sun"
+        data-line2="Orbital Period: 84 Earth Years"
+        data-line3="Radius: 25,362 km"
+        data-line4="Ice giant, axial tilt of 97.8 degrees">
+      </a-sphere>
+      <a-text id="lbl-uranus" value="URANUS" align="center"
+        color="#d0e8ff" width="6.5" position="0 2.3 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- NEPTUNE -->
+  <a-entity id="piv-neptune">
+    <a-entity id="grp-neptune" position="83 0 0">
+      <a-sphere id="pl-neptune" radius="1.60"
+        material="src:#tex-neptune;"
+        class="clickable"
+        data-name="NEPTUNE"
+        data-line1="8th Planet from the Sun"
+        data-line2="Orbital Period: 165 Earth Years"
+        data-line3="Radius: 24,622 km"
+        data-line4="Fastest winds in Solar System 2100 km/h">
+      </a-sphere>
+      <a-text id="lbl-neptune" value="NEPTUNE" align="center"
+        color="#d0e8ff" width="6.5" position="0 2.2 0"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        shader="msdf" negate="false">
+      </a-text>
+    </a-entity>
+  </a-entity>
+
+  <!-- 3D INFO PANEL -->
+  <a-entity id="info-panel" visible="false" position="0 8 -20">
+    <a-plane width="14.4" height="5.9"
+      material="color:#1a4488; opacity:0.55; transparent:true; shader:flat; side:double;"
+      position="0 0 -0.07">
+    </a-plane>
+    <a-plane id="info-bg" width="14" height="5.5"
+      material="color:#010c22; opacity:0.96; transparent:true; shader:flat; side:double;">
+    </a-plane>
+    <a-text id="info-title" value="" align="center"
+      color="#55aaff" width="13" position="0 2.0 0"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      shader="msdf" negate="false">
+    </a-text>
+    <a-plane width="11.5" height="0.07"
+      material="color:#1a4488; shader:flat; opacity:0.9; transparent:true;"
+      position="0 1.45 0">
+    </a-plane>
+    <a-text id="info-l1" value="" align="center"
+      color="#c0dcff" width="13" position="0 0.80 0"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      shader="msdf" negate="false">
+    </a-text>
+    <a-text id="info-l2" value="" align="center"
+      color="#c0dcff" width="13" position="0 0.20 0"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      shader="msdf" negate="false">
+    </a-text>
+    <a-text id="info-l3" value="" align="center"
+      color="#c0dcff" width="13" position="0 -0.40 0"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      shader="msdf" negate="false">
+    </a-text>
+    <a-text id="info-l4" value="" align="center"
+      color="#8aabcc" width="13" position="0 -1.00 0"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      shader="msdf" negate="false">
+    </a-text>
+    <a-text value="[ CLICK ANYWHERE TO CLOSE ]" align="center"
+      color="#2a4466" width="12" position="0 -1.92 0"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      shader="msdf" negate="false">
+    </a-text>
+  </a-entity>
+
+  <!-- CAMERA -->
+  <a-entity id="rig" position="0 24 80">
+    <a-camera id="cam"
+      look-controls="reverseMouseDrag:false; touchEnabled:true;"
+      wasd-controls="acceleration:30;"
+      fov="65" near="0.05" far="20000">
+      <a-entity
+      id = "cursor-ray"
+        raycaster="objects:.clickable"
+        cursor="fuse:true; fuseTimeout: 1500"
+        visible = "false">
+      ></a-entity>
+      <!-- <a-cursor
+        fuse="false"
+        raycaster="objects:.clickable; far:600;"
+        material="color:#ffffff; opacity:0.85; shader:flat;"
+        geometry="primitive:ring; radiusInner:0.013; radiusOuter:0.020;"
+        position="0 0 -0.5">
+      </a-cursor> -->
+    </a-camera>
+  </a-entity>
+
+</a-scene>
+
+<!-- VR Button 
+<button id="vrbtn" style="
+  position:fixed; bottom:24px; right:24px; z-index:999;
+  background:rgba(0,8,32,0.90); border:1px solid rgba(80,160,255,0.45);
+  color:#88ccff; padding:12px 26px; border-radius:8px; cursor:pointer;
+  font-family:'Orbitron',monospace; font-size:0.65rem; letter-spacing:0.22em;
+  box-shadow:0 0 26px rgba(0,50,200,0.55); transition:all 0.25s;"
+  onmouseover="this.style.background='rgba(5,20,60,0.98)';this.style.color='#aaddff';"
+  onmouseout="this.style.background='rgba(0,8,32,0.90)';this.style.color='#88ccff';">
+  &#x2B21; ENTER VR
+</button>
+-->
+<!-- Hint
+<div id="hint" style="
+  position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+  color:#273a52; font-family:'Orbitron',monospace; font-size:0.5rem;
+  letter-spacing:0.18em; white-space:nowrap; pointer-events:none;
+  transition:opacity 1.2s; z-index:100;">
+  DRAG TO LOOK &nbsp;&bull;&nbsp; W A S D TO FLY &nbsp;&bull;&nbsp; CLICK PLANETS FOR INFO
+</div> -->
+
+<script>
+/* ════════════════════════════════════════════════════
+   COMPONENT: orbit-circle
+   Uses THREE.LineLoop — a native WebGL line primitive.
+   This is the professional standard used in production
+   3D apps: one perfect smooth circle, zero polygon
+   artifacts, no wireframe triangles, 1px GPU line.
+════════════════════════════════════════════════════ */
+AFRAME.registerComponent('orbit-circle', {
+  schema: {
+    radius:   { type:'float', default:10    },
+    color:    { type:'color', default:'#7aacdd' },
+    opacity:  { type:'float', default:0.40  },
+    segments: { type:'int',   default:360   }
+  },
+  init: function () {
+    const { radius, color, opacity, segments } = this.data;
+    const pts = [];
+    for (let i = 0; i <= segments; i++) {
+      const a = (i / segments) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius));
+    }
+    const geo  = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat  = new THREE.LineBasicMaterial({
+      color:       new THREE.Color(color),
+      transparent: true,
+      opacity:     opacity,
+      depthWrite:  false
+    });
+    this.el.object3D.add(new THREE.LineLoop(geo, mat));
+  }
+});
+
+/* ════════════════════════════════════════════════════
+   COMPONENT: billboard  (labels always face camera)
+════════════════════════════════════════════════════ */
+AFRAME.registerComponent('billboard', {
+  tick: function () {
+    const cam = document.getElementById('cam');
+    if (!cam) return;
+    const wp = new THREE.Vector3();
+    cam.object3D.getWorldPosition(wp);
+    this.el.object3D.lookAt(wp);
+  }
+});
+
+/* ════════════════════════════════════════════════════
+   SCENE LOADED
+════════════════════════════════════════════════════ */
+document.getElementById('scene').addEventListener('loaded', () => {
+
+  /* Build 8 crisp orbit circles via THREE.LineLoop */
+  const radii = [8, 13, 19, 26, 38, 52, 67, 83];
+  const container = document.getElementById('orbit-lines');
+  radii.forEach(r => {
+    const el = document.createElement('a-entity');
+    el.setAttribute('orbit-circle', `radius:${r}; color:#7aacdd; opacity:0.42; segments:360`);
+    container.appendChild(el);
+  });
+
+  /* Billboard all planet name labels */
+  document.querySelectorAll('a-text').forEach(t => {
+    if (!t.id.startsWith('info-') && t.id !== '') {
+      t.setAttribute('billboard', '');
+    }
+  });
+
+  /* Fade hint after 6 s */
+  setTimeout(() => {
+    const h = document.getElementById('hint');
+    if (h) h.style.opacity = '0';
+  }, 6000);
+
+  requestAnimationFrame(tick);
+});
+
+/* ════════════════════════════════════════════════════
+   ORBITAL & SPIN DATA
+   Real relative periods, Mercury baseline = 1.0
+   Speed fixed at 10x per project requirement
+════════════════════════════════════════════════════ */
+const SPEED    = 10;
+const BASE_SPD = 0.014; // Mercury deg/ms at 1x
+
+const PLANETS = [
+  { piv:'piv-mercury', ratio:1.0000,   start:  45 },
+  { piv:'piv-venus',   ratio:0.3911,   start: 110 },
+  { piv:'piv-earth',   ratio:0.2411,   start: 200 },
+  { piv:'piv-mars',    ratio:0.1281,   start: 290 },
+  { piv:'piv-jupiter', ratio:0.02032,  start: 160 },
+  { piv:'piv-saturn',  ratio:0.008183, start:  60 },
+  { piv:'piv-uranus',  ratio:0.002867, start: 330 },
+  { piv:'piv-neptune', ratio:0.001461, start: 240 },
+];
+
+const SPIN = {
+  'sun':0.0016, 'pl-mercury':0.0005, 'pl-venus':0.00025,
+  'pl-earth':0.0085, 'pl-mars':0.0080, 'pl-jupiter':0.0220,
+  'pl-saturn':0.0200, 'pl-uranus':0.0135, 'pl-neptune':0.0140
+};
+
+const ang  = {};
+PLANETS.forEach(p => ang[p.piv] = p.start);
+ang['piv-moon'] = 0;
+const spin = {};
+Object.keys(SPIN).forEach(k => spin[k] = 0);
+let lastTs = null;
+
+/* ════════════════════════════════════════════════════
+   INFO PANEL — click planet → floating 3D card
+════════════════════════════════════════════════════ */
+/* ===============================
+   PLANET INFO PANEL CLICK HANDLER
+=============================== */
+
+// Get panel and text elements
+const panel  = document.getElementById('info-panel');
+const iTitle = document.getElementById('info-title');
+const iL     = ['info-l1','info-l2','info-l3','info-l4'].map(id => document.getElementById(id));
+
+// State
+let pOpen  = false;
+let pTimer = null;
+
+// Function to open panel
+function openPanel(el) {
+  if (!el) return;
+
+  // Fill in info
+  iTitle.setAttribute('value', el.getAttribute('data-name') || '');
+  iL[0].setAttribute('value', el.getAttribute('data-line1') || '');
+  iL[1].setAttribute('value', el.getAttribute('data-line2') || '');
+  iL[2].setAttribute('value', el.getAttribute('data-line3') || '');
+  iL[3].setAttribute('value', el.getAttribute('data-line4') || '');
+
+  // Position panel relative to camera
+  const rig = document.getElementById('rig');
+  const cam = document.getElementById('cam');
+  const rPos = rig.getAttribute('position');
+  const cRot = cam.getAttribute('rotation');
+
+  // Convert rotation to radians
+  const yaw = THREE.MathUtils.degToRad(cRot.y);
+  const dist = 15; // closer distance
+
+  panel.setAttribute('position', {
+    x: rPos.x + Math.sin(yaw) * dist,
+    y: rPos.y + 5,
+    z: rPos.z - Math.cos(yaw) * dist
+  });
+
+  panel.setAttribute('rotation', { x:0, y:cRot.y, z:0 });
+  panel.setAttribute('visible', true);
+  pOpen = true;
+
+  // Auto-close after 9s
+  clearTimeout(pTimer);
+  pTimer = setTimeout(closePanel, 9000);
+
+  console.log('Planet clicked:', el.getAttribute('data-name')); // Debug
+}
+
+// Function to close panel
+function closePanel() {
+  panel.setAttribute('visible', false);
+  pOpen = false;
+}
+
+// Attach click listener to all clickable planets
+document.querySelectorAll('.clickable').forEach(el => {
+  // Desktop & VR click
+  el.addEventListener('click', e => { 
+    e.stopPropagation();
+    openPanel(el);
+  });
+
+  // Optional: touch / hover (VR controller gaze)
+  el.addEventListener('mouseenter', e => { 
+    e.stopPropagation(); 
+    // Could add hover effect here
+  });
+});
+
+// Close panel if click elsewhere
+document.getElementById('scene').addEventListener('click', e => {
+  if (!e.target.classList.contains('clickable') && pOpen) closePanel();
+});
+
+// const panel    = document.getElementById('info-panel');
+// const iTitle   = document.getElementById('info-title');
+// const iL       = ['info-l1','info-l2','info-l3','info-l4'].map(id => document.getElementById(id));
+// let   pOpen    = false;
+// let   pTimer   = null;
+
+// function openPanel(el) {
+//   iTitle.setAttribute('value', el.getAttribute('data-name')  || '');
+//   iL[0].setAttribute('value', el.getAttribute('data-line1') || '');
+//   iL[1].setAttribute('value', el.getAttribute('data-line2') || '');
+//   iL[2].setAttribute('value', el.getAttribute('data-line3') || '');
+//   iL[3].setAttribute('value', el.getAttribute('data-line4') || '');
+
+//   const rig  = document.getElementById('rig');
+//   const cam  = document.getElementById('cam');
+//   const rPos = rig.getAttribute('position');
+//   const cRot = cam.getAttribute('rotation');
+//   const yaw  = THREE.MathUtils.degToRad(cRot.y);
+//   const dist = 20;
+
+//   panel.setAttribute('position', {
+//     x: rPos.x + Math.sin(yaw) * dist,
+//     y: rPos.y + 2,
+//     z: rPos.z - Math.cos(yaw) * dist
+//   });
+//   panel.setAttribute('rotation', { x:0, y:cRot.y, z:0 });
+//   panel.setAttribute('visible', true);
+//   pOpen = true;
+//   clearTimeout(pTimer);
+//   pTimer = setTimeout(closePanel, 9000);
+// }
+
+// function closePanel() {
+//   panel.setAttribute('visible', false);
+//   pOpen = false;
+// }
+
+// document.querySelectorAll('.clickable').forEach(el => {
+//   el.addEventListener('click', e => { e.stopPropagation(); openPanel(el); });
+// });
+// document.getElementById('scene').addEventListener('click', e => {
+//   if (!e.target.classList.contains('clickable') && pOpen) closePanel();
+// });
+// document.getElementById('vrbtn').addEventListener('click', () => {
+//   document.getElementById('scene').enterVR();
+// });
+
+/* ════════════════════════════════════════════════════
+   ANIMATION LOOP
+════════════════════════════════════════════════════ */
+function tick(ts) {
+  requestAnimationFrame(tick);
+  if (!lastTs) { lastTs = ts; return; }
+  const dt  = ts - lastTs;
+  lastTs    = ts;
+  const eff = dt * SPEED;
+
+  PLANETS.forEach(({ piv, ratio }) => {
+    ang[piv] = (ang[piv] + BASE_SPD * ratio * eff) % 360;
+    const el = document.getElementById(piv);
+    if (el) el.setAttribute('rotation', { x:0, y:ang[piv], z:0 });
+  });
+
+  ang['piv-moon'] = (ang['piv-moon'] + BASE_SPD * 3.2 * eff) % 360;
+  const mp = document.getElementById('piv-moon');
+  if (mp) mp.setAttribute('rotation', { x:0, y:ang['piv-moon'], z:0 });
+
+  Object.entries(SPIN).forEach(([id, spd]) => {
+    spin[id] = (spin[id] + spd * eff) % 360;
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('rotation', { x:0, y:spin[id], z:0 });
+  });
+}
+</script>
+</body>
+</html>
